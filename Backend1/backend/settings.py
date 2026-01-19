@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "store",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -134,8 +135,11 @@ DATABASES["default"]["OPTIONS"] = {
     "init_command": "SET sql_mode= 'STRICT_TRANS_TABLES'"
 }
 
-
+import os
 # ** allowing fronend local host to recive the backend
 CORS_ALLOW_ALL_ORIGINS = [
     "http://localhost:5173",
 ]
+
+MEDIA_URL  = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
