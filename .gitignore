@@ -1,9 +1,12 @@
 .venv/
-Backend/backend/__pycache__/
+__pycache__/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
+.Python
 
 /staticfiles/
 /media/
 .vscode/
-.env
+Backend1/backend/.env
