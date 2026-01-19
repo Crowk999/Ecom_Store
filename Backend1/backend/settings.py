@@ -41,6 +41,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # ** django-cors-header
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -74,14 +76,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
  # ** In my mysql database
+
+from decouple import config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "ecommerce_db",
-        "USER": "ecom_user",
-        "PASSWORD": "strongpassword",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        'NAME': config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST"),
+        "PORT": config("DB_PORT"),
         'OPTIONS': {
             'charset': 'utf8mb4',
         },
@@ -130,3 +134,8 @@ DATABASES["default"]["OPTIONS"] = {
     "init_command": "SET sql_mode= 'STRICT_TRANS_TABLES'"
 }
 
+
+# ** allowing fronend local host to recive the backend
+CORS_ALLOW_ALL_ORIGINS = [
+    "http://localhost:5173",
+]
