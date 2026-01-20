@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "store",
     "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -89,6 +91,7 @@ DATABASES = {
         "PORT": config("DB_PORT"),
         'OPTIONS': {
             'charset': 'utf8mb4',
+            "init_command": "SET sql_mode= 'STRICT_TRANS_TABLES'"
         },
     }
 }
@@ -130,15 +133,16 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# ** For mysql and django
-DATABASES["default"]["OPTIONS"] = {
-    "init_command": "SET sql_mode= 'STRICT_TRANS_TABLES'"
-}
-
 import os
 # ** allowing fronend local host to recive the backend
-CORS_ALLOW_ALL_ORIGINS = [
+CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://localhost:5174",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:5174",
 ]
 
 MEDIA_URL  = "/media/"
