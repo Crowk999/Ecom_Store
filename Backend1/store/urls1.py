@@ -15,3 +15,4 @@ urlpatterns = [
     path("wishlist/", get_wishlist, name="get-wishlist"),
     path("orders/create", create_order, name="create-order"),
 ]
+  
