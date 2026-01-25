@@ -84,14 +84,7 @@ const CheckoutPage: React.FC = () => {
             const orderData: OrderData = {
                 full_name: formData.full_name,
                 phone: formData.phone,
-                address: formData.address,
-                email: 'customer@example.com', // Default email
-                city: 'Kathmandu',
-                state: '',
-                country: 'Nepal',
-                zip_code: '44600',
-                payment_method: 'cod',
-                order_notes: ''
+                address: formData.address
             };
 
             const response = await createOrder(orderData);

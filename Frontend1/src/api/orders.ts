@@ -14,15 +14,10 @@ export interface Order {
     user: number;
     total_amount: string;
     full_name: string;
-    email: string;
     phone: string;
     address: string;
-    city: string;
-    state: string;
-    country: string;
-    zip_code: string;
-    payment_method: string;
     order_notes: string;
+    payment_method: string;
     status: string;
     created_at: string;
     updated_at: string;
@@ -30,15 +25,9 @@ export interface Order {
 }
 
 export interface OrderData {
-    email: string;
     phone: string;
     full_name: string;
     address: string;
-    city: string;
-    state?: string;
-    country?: string;
-    zip_code: string;
-    payment_method: string;
     order_notes?: string;
 }
 
