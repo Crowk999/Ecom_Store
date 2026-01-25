@@ -253,3 +253,48 @@ def update_cart_quantity(request):
         "message": "Cart updated",
         "cart": CartSerializer(cart).data
     })
+
+@api_view(["GET"])
+def get_user_orders(request):
+    """Get all orders for authenticated user"""
+    token_key = request.headers.get("Authorization")
+    if not token_key:
+        return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        key = token_key.split(" ")[1]
+        token = Token.objects.get(key=key)
+        user = token.user
+    except (IndexError, Token.DoesNotExist):
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        orders = Order.objects.filter(user=user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["GET"])
+def get_order_detail(request, pk):
+    """Get detail of a specific order"""
+    token_key = request.headers.get("Authorization")
+    if not token_key:
+        return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        key = token_key.split(" ")[1]
+        token = Token.objects.get(key=key)
+        user = token.user
+    except (IndexError, Token.DoesNotExist):
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        order = Order.objects.get(id=pk, user=user)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+    except Order.DoesNotExist:
+        return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

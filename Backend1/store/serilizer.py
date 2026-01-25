@@ -57,15 +57,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['id', 'product', 'product_name', 'product_image', 'quantity', 'price']
 
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = Order
         fields = [
-            'id', 'user', 'created_at', 'total_amount', 'email', 'phone',
-            'full_name', 'address', 'city', 'state', 'country', 'zip_code',
-            'payment_method', 'status', 'order_notes', 'items'
+            'id', 'user', 'total_amount', 'full_name', 'email', 'phone', 'address', 'city', 'state', 'country', 'zip_code', 'payment_method', 'order_notes', 'status', 'is_paid', 'created_at', 'updated_at', 'items'
         ]
-        read_only_fields = ['id', 'created_at', 'user', 'status']
-        
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']

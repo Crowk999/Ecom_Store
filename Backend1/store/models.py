@@ -40,46 +40,32 @@ class UserProfile(models.Model):
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('processing', 'Processing'),
+        ('confirmed', 'Confirmed'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
     ]
     
-    PAYMENT_METHOD_CHOICES = [
-        ('credit_card', 'Credit Card'),
-        ('debit_card', 'Debit Card'),
-        ('cod', 'Cash on Delivery'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=3)
-    
-    # Contact Information
-    email = models.EmailField(max_length=255, blank=True, default='')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    full_name = models.CharField(max_length=200, blank=True, default='')
+    email = models.EmailField(blank=True, default='')
     phone = models.CharField(max_length=20, blank=True, default='')
-    
-    # Shipping Information
-    full_name = models.CharField(max_length=255, blank=True, default='')
     address = models.TextField(blank=True, default='')
     city = models.CharField(max_length=100, blank=True, default='')
     state = models.CharField(max_length=100, blank=True, default='')
-    country = models.CharField(max_length=100, default='Nepal')
+    country = models.CharField(max_length=100, blank=True, default='USA')
     zip_code = models.CharField(max_length=20, blank=True, default='')
-    
-    # Payment Information
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cod')
-    
-    # Order Status
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    
-    # Optional
+    payment_method = models.CharField(max_length=50, default='cod')
     order_notes = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    is_paid = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Order #{self.id} - {self.user.username}"
-    
+        return f"Order {self.id} - {self.full_name or self.user.username}"
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
