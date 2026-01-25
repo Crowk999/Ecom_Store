@@ -7,6 +7,7 @@ import Register from "./login/Register";
 import Navbar from "./component/Navbar";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
+import OrdersPage from "./pages/OrdersPage";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
 
@@ -24,6 +25,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-success" element={<OrderSuccessPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
           </Routes>
         </CartProvider>
       </WishlistProvider>
@@ -31,4 +33,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

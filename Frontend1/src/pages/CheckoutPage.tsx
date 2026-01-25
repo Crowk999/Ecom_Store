@@ -96,7 +96,7 @@ const CheckoutPage: React.FC = () => {
 
             const response = await createOrder(orderData);
             await refreshCart();
-            navigate(`/order-success?orderId=${response.order.id}`);
+            navigate(`/order-success?orderId=${response.id}`);
         } catch (error: any) {
             alert(error.message || "Failed to place order. Please try again.");
         } finally {
@@ -199,7 +199,7 @@ const CheckoutPage: React.FC = () => {
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                             </svg>
-                                            Place Order - NPR {total.toFixed(2)}
+                                            Place Order - ${total.toFixed(2)}
                                         </span>
                                     )}
                                 </button>
@@ -221,15 +221,15 @@ const CheckoutPage: React.FC = () => {
                                 {cart.items.map((item) => (
                                     <div key={item.id} className="flex gap-3 items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                         <img
-                                            src={item.product.image ? (item.product.image.startsWith('http') ? item.product.image : `http://127.0.0.1:8000${item.product.image}`) : "/default-image.jpg"}
-                                            alt={item.product.name}
+                                            src={item.product_image ? (item.product_image.startsWith('http') ? item.product_image : `http://127.0.0.1:8000${item.product_image}`) : "/default-image.jpg"}
+                                            alt={item.product_name}
                                             className="w-14 h-14 object-cover rounded-lg shadow"
                                         />
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{item.product.name}</h4>
+                                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{item.product_name}</h4>
                                             <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity}</p>
                                         </div>
-                                        <p className="font-bold text-gray-900 dark:text-white text-sm">NPR {(item.product.price * item.quantity).toFixed(2)}</p>
+                                        <p className="font-bold text-gray-900 dark:text-white text-sm">${(item.product_price * item.quantity).toFixed(2)}</p>
                                     </div>
                                 ))}
                             </div>
@@ -237,7 +237,7 @@ const CheckoutPage: React.FC = () => {
                             <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
                                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                                     <span>Subtotal</span>
-                                    <span className="font-semibold">NPR {total.toFixed(2)}</span>
+                                    <span className="font-semibold">${total.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                                     <span>Delivery</span>
@@ -245,7 +245,7 @@ const CheckoutPage: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between text-xl font-bold text-gray-900 dark:text-white pt-2 border-t border-gray-200 dark:border-gray-700">
                                     <span>Total</span>
-                                    <span className="text-indigo-600 dark:text-indigo-400">NPR {total.toFixed(2)}</span>
+                                    <span className="text-indigo-600 dark:text-indigo-400">${total.toFixed(2)}</span>
                                 </div>
                             </div>
 
