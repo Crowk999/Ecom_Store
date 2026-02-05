@@ -9,4 +9,4 @@ __pycache__/
 /staticfiles/
 /media/
 .vscode/
-Backend1/backend/.env
+Backend1/.env

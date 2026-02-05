@@ -152,7 +152,7 @@ const OrdersPage: React.FC = () => {
                                             <div>
                                                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Delivery To</p>
                                                 <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                                                    {order.city}
+                                                    {order.address}
                                                 </p>
                                             </div>
                                         </div>

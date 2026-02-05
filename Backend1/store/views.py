@@ -1,10 +1,30 @@
+import os
+from dotenv import load_dotenv
+load_dotenv() 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Product, Category, Cart, CartItem, Wishlist, Order, OrderItem
-from .serilizer import ProductSerializer, CategorySerializer, CartItemSerializer, CartSerializer, UserRegisterSerializer, OrderSerializer, OrderItemSerializer
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
 from rest_framework import status
+from django.contrib.auth import authenticate
+from django.db import transaction
+from rest_framework.authtoken.models import Token
+from .models import Product, Category, Cart, CartItem, Wishlist, Order, OrderItem
+from .serilizer import (
+    ProductSerializer, CategorySerializer, CartItemSerializer, 
+    CartSerializer, UserRegisterSerializer, OrderSerializer
+)
+from django.core.mail import send_mail
+from django.conf import settings
+
+def get_auth_user(request):
+    """Helper to get user from Token in Authorization header"""
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Token "):
+        return None
+    try:
+        token_key = auth_header.split(" ")[1]
+        return Token.objects.get(key=token_key).user
+    except (IndexError, Token.DoesNotExist):
+        return None
 
 @api_view(["POST"])
 def register_user(request):
@@ -18,119 +38,80 @@ def register_user(request):
 def login_user(request):
     username = request.data.get("username")
     password = request.data.get("password")
-    
     user = authenticate(username=username, password=password)
     
     if user:
         token, _ = Token.objects.get_or_create(user=user)
         return Response({"token": token.key, "username": user.username}, status=status.HTTP_200_OK)
-    
-    
     return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(["POST"])
 def toggle_wishlist(request):
-    token_key = request.headers.get("Authorization")
-    if not token_key:
+    user = get_auth_user(request)
+    if not user:
         return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    # Simple token extraction (Token <key>)
-    try:
-        key = token_key.split(" ")[1]
-        token = Token.objects.get(key=key)
-        user = token.user
-    except:
-        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
 
     product_id = request.data.get("product_id")
-    if not product_id:
-        return Response({"error": "Product ID required"}, status=400)
-    
     try:
         product = Product.objects.get(id=product_id)
         wishlist, _ = Wishlist.objects.get_or_create(user=user)
-        
         if product in wishlist.products.all():
             wishlist.products.remove(product)
             liked = False
         else:
             wishlist.products.add(product)
             liked = True
-            
         return Response({"liked": liked, "message": "Wishlist updated"})
     except Product.DoesNotExist:
         return Response({"error": "Product not found"}, status=404)
 
 @api_view(["GET"])
 def get_wishlist(request):
-    token_key = request.headers.get("Authorization")
-    if not token_key:
+    user = get_auth_user(request)
+    if not user:
         return Response([]) 
-    
-    try:
-        key = token_key.split(" ")[1]
-        token = Token.objects.get(key=key)
-        user = token.user
-        wishlist, _ = Wishlist.objects.get_or_create(user=user)
-        # Return list of product IDs
-        return Response(wishlist.products.values_list('id', flat=True))
-    except:
-        return Response([])
+    wishlist, _ = Wishlist.objects.get_or_create(user=user)
+    return Response(wishlist.products.values_list('id', flat=True))
 
 @api_view(["POST"])
+@transaction.atomic
 def create_order(request):
-    """Create an order from the current cart - Simplified for Nepal COD"""
-    # Check authentication
-    token_key = request.headers.get("Authorization")
-    if not token_key:
+    user = get_auth_user(request)
+    if not user:
         return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
     
     try:
-        key = token_key.split(" ")[1]
-        token = Token.objects.get(key=key)
-        user = token.user
-    except:
-        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    # Get cart
-    try:
-        cart = Cart.objects.get(user=None)  # Guest cart
+        cart = Cart.objects.get(user=user)
         if not cart.items.exists():
-            return Response({"error": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Your cart is empty. Please add items before checkout."}, status=status.HTTP_400_BAD_REQUEST)
     except Cart.DoesNotExist:
         return Response({"error": "Cart not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    # Get required fields from request
     full_name = request.data.get('full_name', '').strip()
     phone = request.data.get('phone', '').strip()
     address = request.data.get('address', '').strip()
     
-    # Validate required fields
-    if not full_name:
-        return Response({"error": "Full name is required"}, status=status.HTTP_400_BAD_REQUEST)
-    if not phone:
-        return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
-    if not address:
-        return Response({"error": "Delivery address is required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not all([full_name, phone, address]):
+        return Response({"error": "Full name, phone, and address are required"}, status=status.HTTP_400_BAD_REQUEST)
     
-    # Create order with simplified data
+    # Simple phone cleaning (take only digits)
+    clean_phone = ''.join(filter(str.isdigit, phone))
+    if len(clean_phone) > 10:
+        clean_phone = clean_phone[-10:] # Keep last 10 digits as per model constraint
+    elif len(clean_phone) < 10:
+        return Response({"error": "Phone number must be at least 10 digits"}, status=status.HTTP_400_BAD_REQUEST)
+
     order = Order.objects.create(
         user=user,
         total_amount=cart.total,
         full_name=full_name,
-        phone=phone,
+        phone=clean_phone,
         address=address,
-        email=request.data.get('email', 'customer@example.com'),
-        city=request.data.get('city', 'Kathmandu'),
-        state=request.data.get('state', ''),
-        country=request.data.get('country', 'Nepal'),
-        zip_code=request.data.get('zip_code', '44600'),
-        payment_method='cod',  # Always Cash on Delivery
         order_notes=request.data.get('order_notes', ''),
+        payment_method='cash',
         status='pending'
     )
     
-    # Create order items from cart
     for cart_item in cart.items.all():
         OrderItem.objects.create(
             order=order,
@@ -139,162 +120,132 @@ def create_order(request):
             price=cart_item.product.price
         )
     
-    # Clear the cart
     cart.items.all().delete()
-    
-    # Return success response
-    serializer = OrderSerializer(order)
+
+    #  EMAIL TO Owner (ADMIN)
+    try:
+        send_mail(
+            subject=f"New Order #{order.id}",
+            message=f"""
+New order placed!
+
+Order ID: {order.id}
+Customer: {user.email} (Username: {user.username})
+Full Name: {order.full_name}
+Phone: {order.phone}
+Total Amount: $ {order.total_amount}
+Address: {order.address}
+Notes: {order.order_notes}
+            """,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[ os.getenv("EMAIL_USER")],
+            fail_silently=True
+        )
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+
     return Response({
-        "message": "Order placed successfully! We will contact you soon.",
-        "order": serializer.data
+        "message": "Order placed successfully!",
+        "order": OrderSerializer(order).data
     }, status=status.HTTP_201_CREATED)
 
 @api_view(["GET"])
 def get_products(request):
     query = request.query_params.get('search')
-    if query:
-        products = Product.objects.filter(name__icontains=query)
-    else:
-        products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data)
+    products = Product.objects.filter(name__icontains=query) if query else Product.objects.all()
+    return Response(ProductSerializer(products, many=True).data)
 
 @api_view(["GET"])
 def get_categories(request):
-    categories = Category.objects.all()
-    serializer = CategorySerializer(categories, many=True)
-    return Response(serializer.data)
+    return Response(CategorySerializer(Category.objects.all(), many=True).data)
 
 @api_view(["GET"])
 def get_product_detail(request, pk):
     try:
-        product = Product.objects.get(pk=pk)
+        return Response(ProductSerializer(Product.objects.get(pk=pk)).data)
     except Product.DoesNotExist:
-        return Response(status=404)
-    serializer = ProductSerializer(product)
-    return Response(serializer.data)
+        return Response({"error": "Product not found"}, status=404)
 
 @api_view(["GET"])
 def get_carts(request):
-    cart, created = Cart.objects.get_or_create(user=None)
-    serializer = CartSerializer(cart)
-    return Response(serializer.data)
+    user = get_auth_user(request)
+    cart, _ = Cart.objects.get_or_create(user=user)
+    return Response(CartSerializer(cart).data)
 
-@api_view(["POST"]) # Adding to the cart
+@api_view(["POST"])
 def get_add_carts(request):
     product_id = request.data.get("product_id")
-    # Get optional quantity from request, default to 1
     quantity = int(request.data.get("quantity", 1))
     
-    product = Product.objects.get(id=product_id)
-    cart, created = Cart.objects.get_or_create(user=None)
-    item, created = CartItem.objects.get_or_create(cart= cart, product= product)
-
-    if not created:
-        item.quantity += quantity
-    else:
-        # If it was just created, it has default=1. 
-        # But we want to set it to the requested quantity.
-        item.quantity = quantity
-    item.save()
-    
-    return Response({
-        "message" : f"Added {quantity} unit(s) to cart",
-        "cart" : CartSerializer(cart).data
-    })
-
+    try:
+        product = Product.objects.get(id=product_id)
+        user = get_auth_user(request)
+        cart, _ = Cart.objects.get_or_create(user=user)
+        item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        item.quantity = item.quantity + quantity if not created else quantity
+        item.save()
+        
+        return Response({
+            "message": f"Added to cart",
+            "cart": CartSerializer(cart).data
+        })
+    except Product.DoesNotExist:
+        return Response({"error": "Product not found"}, status=404)
 
 @api_view(["POST"])
 def get_remove_carts(request):
     item_id = request.data.get("item_id")
-    if not item_id:
-        return Response({"error": "item_id is required"}, status=400)
-    
     try:
         item = CartItem.objects.get(id=item_id)
         item.delete()
+        user = get_auth_user(request)
+        cart, _ = Cart.objects.get_or_create(user=user)
+        return Response({
+            "message": "Item removed",
+            "cart": CartSerializer(cart).data
+        })
     except CartItem.DoesNotExist:
         return Response({"error": "Item not found"}, status=404)
-
-    cart, created = Cart.objects.get_or_create(user=None)
-
-    return Response({
-        "message": "Item removed from  cart",
-        "cart" : CartSerializer(cart).data
-    })
 
 @api_view(["POST"])
 def update_cart_quantity(request):
     item_id = request.data.get("item_id")
-    action = request.data.get("action") # "increase" or "decrease"
-
-    if not item_id or not action:
-        return Response({"error": "item_id and action are required"}, status=400)
-
+    action = request.data.get("action")
     try:
         item = CartItem.objects.get(id=item_id)
         if action == "increase":
             item.quantity += 1
-            item.save()
         elif action == "decrease":
             item.quantity -= 1
-            if item.quantity <= 0:
-                item.delete()
-            else:
-                item.save()
+        
+        if item.quantity <= 0:
+            item.delete()
         else:
-             return Response({"error": "Invalid action"}, status=400)
-             
+            item.save()
+            
+        user = get_auth_user(request)
+        cart, _ = Cart.objects.get_or_create(user=user)
+        return Response({"cart": CartSerializer(cart).data})
     except CartItem.DoesNotExist:
         return Response({"error": "Item not found"}, status=404)
 
-    cart, created = Cart.objects.get_or_create(user=None)
-    return Response({
-        "message": "Cart updated",
-        "cart": CartSerializer(cart).data
-    })
-
 @api_view(["GET"])
 def get_user_orders(request):
-    """Get all orders for authenticated user"""
-    token_key = request.headers.get("Authorization")
-    if not token_key:
+    user = get_auth_user(request)
+    if not user:
         return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    try:
-        key = token_key.split(" ")[1]
-        token = Token.objects.get(key=key)
-        user = token.user
-    except (IndexError, Token.DoesNotExist):
-        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    try:
-        orders = Order.objects.filter(user=user).order_by('-created_at')
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    orders = Order.objects.filter(user=user).order_by('-created_at')
+    return Response(OrderSerializer(orders, many=True).data)
 
 @api_view(["GET"])
 def get_order_detail(request, pk):
-    """Get detail of a specific order"""
-    token_key = request.headers.get("Authorization")
-    if not token_key:
+    user = get_auth_user(request)
+    if not user:
         return Response({"error": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    try:
-        key = token_key.split(" ")[1]
-        token = Token.objects.get(key=key)
-        user = token.user
-    except (IndexError, Token.DoesNotExist):
-        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-    
     try:
         order = Order.objects.get(id=pk, user=user)
-        serializer = OrderSerializer(order)
-        return Response(serializer.data)
+        return Response(OrderSerializer(order).data)
     except Order.DoesNotExist:
         return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
