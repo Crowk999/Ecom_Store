@@ -126,16 +126,15 @@ def create_order(request):
     try:
         send_mail(
             subject=f"New Order #{order.id}",
-            message=f"""
-New order placed!
-
-Order ID: {order.id}
-Customer: {user.email} (Username: {user.username})
-Full Name: {order.full_name}
-Phone: {order.phone}
-Total Amount: $ {order.total_amount}
-Address: {order.address}
-Notes: {order.order_notes}
+                        message=f"""
+            New order placed!
+            Order ID: {order.id}
+            Customer: {user.email} (Username: {user.username})
+            Full Name: {order.full_name}
+            Phone: {order.phone}
+            Total Amount: $ {order.total_amount}
+            Address: {order.address}
+            Notes: {order.order_notes}
             """,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[ os.getenv("EMAIL_USER")],
