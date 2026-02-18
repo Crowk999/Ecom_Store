@@ -12,3 +12,4 @@ admin.site.register(OrderItem)
 admin.site.register(CartItem)
 admin.site.register(Cart)
 admin.site.register(Wishlist)
+
