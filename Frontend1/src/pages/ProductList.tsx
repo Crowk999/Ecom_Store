@@ -11,7 +11,7 @@ function ProductList() {
     const searchQuery = searchParams.get("search");
 
     useEffect(() => {
-        let url = "http://127.0.0.1:8000/api/products/";
+        let url = "https://ecom-store-s6y4.onrender.com/api/products/";
         if (searchQuery) {
             url += `?search=${encodeURIComponent(searchQuery)}`;
         }
