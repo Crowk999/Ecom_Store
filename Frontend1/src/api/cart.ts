@@ -1,4 +1,4 @@
-export const API_URL = "http://127.0.0.1:8000/api/carts/";
+export const API_URL = "https://ecom-store-s6y4.onrender.com/api/carts/";
 
 export const fetchCart = async () => {
     const token = localStorage.getItem("token");
