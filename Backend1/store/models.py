@@ -2,7 +2,7 @@ from django.db import models
 # Create your models here.
 
 from django.contrib.auth.models import User
-from django.core.validators import MinLengthValidator, RegexValidator 
+from django.core.validators import MinLengthValidator, MaxLengthValidator 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -27,11 +27,10 @@ class UserProfile(models.Model):
     user = models.OneToOneField( User, on_delete=models.CASCADE) 
     phone = models.CharField(
         max_length=10,  # max 10 digits
-        validators=[
-            MinLengthValidator(10),  # min 10 digits
-            RegexValidator(r'^\d{10}$', message="Phone must be 10 digits")
-        ]
-    )
+        validators=[MinLengthValidator(10),  # min 10 digits
+            MaxLengthValidator(10)])
+               
+    
     address = models.TextField(blank=True)
 
     def __str__(self):
@@ -53,8 +52,7 @@ class Order(models.Model):
         max_length=10,  # max 10 digits
         validators=[
             MinLengthValidator(10),  # min 10 digits
-            RegexValidator(r'^\d{10}$', message="Phone must be 10 digits")
-        ]
+            MaxLengthValidator(10)]
     )
     
     address = models.TextField(blank=True, default='')
