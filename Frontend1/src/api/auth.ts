@@ -1,4 +1,4 @@
-const AUTH_URL = "http://127.0.0.1:8000/api/";
+const AUTH_URL = "https://ecom-store-s6y4.onrender.com/api/";
 
 export const loginUser = async (data: any) => {
     const response = await fetch(`${AUTH_URL}login/`, {
