@@ -1,4 +1,4 @@
-const AUTH_URL = "http://127.0.0.1:8000/api/";
+import { AUTH_URL } from "../config/api";
 
 export const loginUser = async (data: any) => {
     const response = await fetch(`${AUTH_URL}login/`, {

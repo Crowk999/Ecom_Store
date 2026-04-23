@@ -137,15 +137,17 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 import os
-# ** allowing fronend local host to recive the backend
+# ** allowing frontend local host and deployed Vercel app to receive the backend
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
+    "https://ecom-store-flame.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
+    "https://ecom-store-flame.vercel.app",
 ]
 
 MEDIA_URL  = "/media/"

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config/api';
 
 type WishlistContextType = {
     wishlist: number[];
@@ -24,7 +25,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             }
 
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/wishlist/", {
+                const response = await fetch(`${API_BASE}/wishlist/`, {
                     headers: {
                         "Authorization": `Token ${token}`
                     }
@@ -55,7 +56,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setWishlist(prev => isLiked ? prev.filter(id => id !== productId) : [...prev, productId]);
 
         try {
-            await fetch("http://127.0.0.1:8000/api/wishlist/toggle", {
+            await fetch(`${API_BASE}/wishlist/toggle`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

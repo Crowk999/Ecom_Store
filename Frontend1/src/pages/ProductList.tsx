@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../component/ProductCard";
 import { useSearchParams } from "react-router-dom";
+import { API_BASE } from "../config/api";
 
 
 function ProductList() {
@@ -11,7 +12,7 @@ function ProductList() {
     const searchQuery = searchParams.get("search");
 
     useEffect(() => {
-        let url = "http://127.0.0.1:8000/api/products/";
+        let url = `${API_BASE}/products/`;
         if (searchQuery) {
             url += `?search=${encodeURIComponent(searchQuery)}`;
         }
