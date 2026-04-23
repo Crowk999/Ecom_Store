@@ -212,7 +212,7 @@ const OrdersPage: React.FC = () => {
                                                 <div key={item.id} className="flex gap-3 items-start">
                                                     {item.product_image && (
                                                         <img
-                                                            src={item.product_image.startsWith('http') ? item.product_image : `https://ecom-store-s6y4.onrender.com${item.product_image}`}
+                                                            src={item.product_image.startsWith('http') ? item.product_image : `http://127.0.0.1:8000${item.product_image}`}
                                                             alt={item.product_name}
                                                             className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
                                                         />

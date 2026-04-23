@@ -24,7 +24,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             }
 
             try {
-                const response = await fetch("https://ecom-store-s6y4.onrender.com/api/wishlist/", {
+                const response = await fetch("http://127.0.0.1:8000/api/wishlist/", {
                     headers: {
                         "Authorization": `Token ${token}`
                     }
@@ -55,7 +55,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setWishlist(prev => isLiked ? prev.filter(id => id !== productId) : [...prev, productId]);
 
         try {
-            await fetch("https://ecom-store-s6y4.onrender.com/api/wishlist/toggle", {
+            await fetch("http://127.0.0.1:8000/api/wishlist/toggle", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

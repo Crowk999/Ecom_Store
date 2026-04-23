@@ -16,7 +16,7 @@ function ProductDetails() {
     const { isInWishlist, toggleWishlist } = useWishlist();
 
     useEffect(() => {
-        fetch(`https://ecom-store-s6y4.onrender.com/api/products/${id}/`)
+        fetch(`http://127.0.0.1:8000/api/products/${id}/`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error("Product not found");
@@ -102,7 +102,7 @@ function ProductDetails() {
                             </button>
                             <img
                                 src={product.image
-                                    ? (product.image.startsWith('http') ? product.image : `https://ecom-store-s6y4.onrender.com${product.image}`)
+                                    ? (product.image.startsWith('http') ? product.image : `http://127.0.0.1:8000${product.image}`)
                                     : "/default-image.jpg"}
                                 alt={product.name}
                                 className="w-full h-[500px] object-cover object-center transition-transform duration-500 group-hover:scale-105"

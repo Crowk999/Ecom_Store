@@ -12,7 +12,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onRemove, onUpdateQuantity })
             <div className="flex items-center gap-4">
                 {item.product_image ? (
                     <img
-                        src={item.product_image.startsWith('http') ? item.product_image : `https://ecom-store-s6y4.onrender.com${item.product_image}`}
+                        src={item.product_image.startsWith('http') ? item.product_image : `http://127.0.0.1:8000${item.product_image}`}
                         alt={item.product_name}
                         className="h-20 w-20 rounded-md object-cover shadow-sm bg-gray-100"
                     />
