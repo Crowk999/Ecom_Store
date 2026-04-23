@@ -214,7 +214,7 @@ const CheckoutPage: React.FC = () => {
                                 {cart.items.map((item) => (
                                     <div key={item.id} className="flex gap-3 items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                                         <img
-                                            src={item.product_image ? (item.product_image.startsWith('http') ? item.product_image : `http://127.0.0.1:8000${item.product_image}`) : "/default-image.jpg"}
+                                            src={item.product_image ? (item.product_image.startsWith('http') ? item.product_image : `https://ecom-store-s6y4.onrender.com${item.product_image}`) : "/default-image.jpg"}
                                             alt={item.product_name}
                                             className="w-14 h-14 object-cover rounded-lg shadow"
                                         />

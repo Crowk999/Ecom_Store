@@ -38,7 +38,7 @@ function ProductCard({ product }: props) {
                 <div className="relative overflow-hidden rounded-lg mb-4 h-56">
                     <img
                         src={product.image
-                            ? (product.image.startsWith('http') ? product.image : `http://127.0.0.1:8000${product.image}`)
+                            ? (product.image.startsWith('http') ? product.image : `https://ecom-store-s6y4.onrender.com/${product.image}`)
                             : "/default-image.jpg"}
                         alt={product.name || "Product"}
                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
