@@ -1,6 +1,7 @@
 import type { Products } from "./type";
 import { Link } from "react-router-dom";
 import { useWishlist } from "../context/WishlistContext";
+import { BASE_IMAGE_URL } from "../config";
 
 type props = {
     product: Products
@@ -38,7 +39,7 @@ function ProductCard({ product }: props) {
                 <div className="relative overflow-hidden rounded-lg mb-4 h-56">
                     <img
                         src={product.image
-                            ? (product.image.startsWith('http') ? product.image : `http://127.0.0.1:8000/${product.image}`)
+                            ? (product.image.startsWith('http') ? product.image : `${BASE_IMAGE_URL}${product.image.startsWith('/') ? '' : '/'}${product.image}`)
                             : "/default-image.jpg"}
                         alt={product.name || "Product"}
                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"

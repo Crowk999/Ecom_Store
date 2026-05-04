@@ -1,4 +1,5 @@
-export const API_URL = "https://ecom-store-s6y4.onrender.com/api/carts/";
+import { BASE_URL } from "../config";
+export const API_URL = `${BASE_URL}carts/`;
 
 export const fetchCart = async () => {
     const token = localStorage.getItem("token");

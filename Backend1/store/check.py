@@ -1,5 +1,3 @@
-import os
-from dotenv import load_dotenv
-load_dotenv() 
-print(os.getenv("EMAIL_USER"))
-print(os.getenv("EMAIL_PASSWORD"))
+from decouple import config
+print(config("EMAIL_USER", default="Not set"))
+print(config("EMAIL_PASSWORD", default="Not set"))

@@ -1,6 +1,5 @@
 import os
-from dotenv import load_dotenv
-load_dotenv() 
+from decouple import config
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -137,7 +136,7 @@ def create_order(request):
             Notes: {order.order_notes}
             """,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[ os.getenv("EMAIL_USER")],
+            recipient_list=[settings.EMAIL_HOST_USER],
             fail_silently=True
         )
     except Exception as e:

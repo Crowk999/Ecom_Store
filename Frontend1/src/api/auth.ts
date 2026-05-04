@@ -1,4 +1,5 @@
-const AUTH_URL = "https://ecom-store-s6y4.onrender.com/api/";
+import { BASE_URL } from "../config";
+const AUTH_URL = BASE_URL;
 
 export const loginUser = async (data: any) => {
     const response = await fetch(`${AUTH_URL}login/`, {

@@ -4,6 +4,7 @@ import type { Products } from "../component/type";
 import { addToCart } from "../api/cart";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { BASE_URL, BASE_IMAGE_URL } from "../config";
 
 function ProductDetails() {
     const { id } = useParams();
@@ -16,7 +17,7 @@ function ProductDetails() {
     const { isInWishlist, toggleWishlist } = useWishlist();
 
     useEffect(() => {
-        fetch(`http://127.0.0.1:8000/api/products/${id}/`)
+        fetch(`${BASE_URL}products/${id}/`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error("Product not found");
@@ -102,7 +103,7 @@ function ProductDetails() {
                             </button>
                             <img
                                 src={product.image
-                                    ? (product.image.startsWith('http') ? product.image : `http://127.0.0.1:8000${product.image}`)
+                                    ? (product.image.startsWith('http') ? product.image : `${BASE_IMAGE_URL}${product.image}`)
                                     : "/default-image.jpg"}
                                 alt={product.name}
                                 className="w-full h-[500px] object-cover object-center transition-transform duration-500 group-hover:scale-105"

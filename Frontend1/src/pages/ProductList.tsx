@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ProductCard from "../component/ProductCard";
+import { BASE_URL } from "../config";
 import { useSearchParams } from "react-router-dom";
 
 
@@ -11,7 +12,7 @@ function ProductList() {
     const searchQuery = searchParams.get("search");
 
     useEffect(() => {
-        let url = "https://ecom-store-s6y4.onrender.com/api/products/";
+        let url = `${BASE_URL}products/`;
         if (searchQuery) {
             url += `?search=${encodeURIComponent(searchQuery)}`;
         }

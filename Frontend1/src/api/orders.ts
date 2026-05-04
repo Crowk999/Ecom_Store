@@ -1,4 +1,5 @@
-export const API_URL = "https://ecom-store-s6y4.onrender.com/api/";
+import { BASE_URL } from "../config";
+export const API_URL = BASE_URL;
 
 export interface OrderItem {
     id: number;

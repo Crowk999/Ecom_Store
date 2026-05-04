@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchUserOrders, getOrderDetail, type Order, type OrderItem } from '../api/orders';
+import { BASE_IMAGE_URL } from '../config';
 
 const OrdersPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -212,7 +213,7 @@ const OrdersPage: React.FC = () => {
                                                 <div key={item.id} className="flex gap-3 items-start">
                                                     {item.product_image && (
                                                         <img
-                                                            src={item.product_image.startsWith('http') ? item.product_image : `http://127.0.0.1:8000${item.product_image}`}
+                                                            src={item.product_image.startsWith('http') ? item.product_image : `${BASE_IMAGE_URL}${item.product_image}`}
                                                             alt={item.product_name}
                                                             className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
                                                         />
